@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FERS RA Guide + Retirement Calculator</title>
   <style>
     body {
@@ -35,16 +36,6 @@
       border-left: 4px solid #3498db;
       margin-bottom: 2rem;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 0.75rem;
-      text-align: left;
-    }
     input, select, button {
       display: block;
       width: 100%;
@@ -70,13 +61,13 @@
       margin-top: 2rem;
       border-radius: 6px;
     }
-    ul {
-      padding-left: 1.2rem;
-    }
     hr {
       margin: 3rem 0;
       border: none;
       border-top: 1px solid #ccc;
+    }
+    ul {
+      padding-left: 1.2rem;
     }
   </style>
 </head>
@@ -86,68 +77,114 @@
 
 <blockquote>
   🛠️ <strong>Welcome!</strong><br>
-  This guide is for federal employees facing medical challenges who are exploring <strong>reasonable accommodations</strong>, <strong>disability retirement</strong>, or <strong>early retirement options</strong> under FERS.
+  This guide is for federal employees facing medical challenges who are exploring <strong>reasonable accommodations</strong>, <strong>disability retirement</strong>, or <strong>early retirement options</strong> under FERS. Whether you're ADOS, a veteran, or any public servant navigating chronic health conditions, this guide is for you.
 </blockquote>
+
+<h2>Section 1: Understanding Reasonable Accommodations (RA)</h2>
+<p><strong>What is a Reasonable Accommodation?</strong></p>
+<p>A reasonable accommodation is any change or adjustment to a job or work environment that allows a qualified individual with a disability to perform essential job functions.</p>
+<ul>
+  <li>Permanent or expanded telework</li>
+  <li>Flexible work schedules</li>
+  <li>Modified job duties</li>
+  <li>Ergonomic equipment</li>
+  <li>Reassignment to a vacant position</li>
+</ul>
+
+<h3>Eligibility and Process</h3>
+<ul>
+  <li>Documented physical or mental impairment</li>
+  <li>Condition must interfere with job functions</li>
+  <li>Initiate request via HR or Disability Program Manager (DPM)</li>
+  <li>Provide supporting documentation</li>
+  <li>Engage in interactive discussion</li>
+</ul>
+
+<h2>Section 2: FERS Retirement Options</h2>
+<ul>
+  <li><strong>VERA:</strong> Early retirement at 50 with 20 years or any age with 25 years. Includes FERS supplement.</li>
+  <li><strong>FERS Disability:</strong> Available after 18 months. Requires disabling condition and application for SSDI. Offset applies if approved.</li>
+</ul>
+
+<h3>FERS Disability Pay</h3>
+<ul>
+  <li>Year 1: 60% of High-3 minus 100% of SSDI</li>
+  <li>Year 2+: 40% of High-3 minus 60% of SSDI</li>
+  <li>At 62: Converts to regular FERS annuity</li>
+</ul>
+
+<h2>Disability vs. Early Retirement Comparison</h2>
+<table>
+  <tr><th>Feature</th><th>VERA</th><th>FERS Disability</th></tr>
+  <tr><td>Age Requirement</td><td>50/20 or 25 years</td><td>Any age, 18+ months service</td></tr>
+  <tr><td>FERS Supplement</td><td>Yes</td><td>No</td></tr>
+  <tr><td>SSDI Offset</td><td>No</td><td>Yes</td></tr>
+  <tr><td>VA Compatible</td><td>Yes</td><td>Yes, if separate conditions</td></tr>
+</table>
+
+<h2>Section 3: VA Disability + Federal Retirement</h2>
+<p>You can receive both VA disability (tax-free) and FERS retirement (taxable). There's no offset unless both are awarded for the same condition.</p>
+
+<h2>Section 4: Documentation and Planning</h2>
+<ul>
+  <li>Log health episodes, missed work, and accommodations</li>
+  <li>Gather VA ratings and physician documentation</li>
+  <li>Track HR communications for RA or reassignments</li>
+</ul>
+
+<hr />
 
 <h2>💡 Interactive FERS Retirement Calculator</h2>
 <form id="calcForm">
   <label>High-3 Average Salary ($):</label>
-  <input type="number" id="high3" required>
-
+  <input type="number" id="high3" required />
   <label>Years of Federal Service:</label>
-  <input type="number" id="years" required>
-
+  <input type="number" id="years" required />
   <label>VA Disability Monthly Compensation ($):</label>
-  <input type="number" id="vaComp" required>
-
+  <input type="number" id="vaComp" required />
   <label>TSP Balance ($):</label>
-  <input type="number" id="tsp" required>
-
+  <input type="number" id="tsp" required />
   <label>TSP Withdrawal Rate (%):</label>
-  <input type="number" id="withdrawRate" value="4">
-
+  <input type="number" id="withdrawRate" value="4" />
   <label>Include FERS Annuity Supplement?</label>
   <select id="fersSupp">
     <option value="yes">Yes</option>
     <option value="no">No</option>
   </select>
-
   <button type="submit">Calculate Estimate</button>
 </form>
 
 <div class="result" id="result"></div>
 
 <script>
-  document.getElementById('calcForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const high3 = parseFloat(document.getElementById('high3').value);
-    const years = parseFloat(document.getElementById('years').value);
-    const vaComp = parseFloat(document.getElementById('vaComp').value);
-    const tsp = parseFloat(document.getElementById('tsp').value);
-    const withdrawRate = parseFloat(document.getElementById('withdrawRate').value) / 100;
-    const fersSupp = document.getElementById('fersSupp').value;
-
-    const pension = high3 * years * 0.011;
-    const tspMonthly = (tsp * withdrawRate) / 12;
-    const supplement = fersSupp === 'yes' ? 1300 : 0;
-
-    const totalMonthly = (pension / 12) + tspMonthly + vaComp + supplement;
-
-    document.getElementById('result').innerHTML = `
-      <h3>Estimated Monthly Retirement Income:</h3>
-      <ul>
-        <li><strong>FERS Pension:</strong> $${(pension / 12).toFixed(2)}</li>
-        <li><strong>TSP Withdrawal:</strong> $${tspMonthly.toFixed(2)}</li>
-        <li><strong>VA Disability:</strong> $${vaComp.toFixed(2)}</li>
-        <li><strong>FERS Supplement:</strong> $${supplement.toFixed(2)}</li>
-        <li><strong><em>Total Estimate:</em></strong> <strong>$${totalMonthly.toFixed(2)}</strong></li>
-      </ul>
-    `;
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('calcForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const high3 = parseFloat(document.getElementById('high3').value);
+      const years = parseFloat(document.getElementById('years').value);
+      const vaComp = parseFloat(document.getElementById('vaComp').value);
+      const tsp = parseFloat(document.getElementById('tsp').value);
+      const withdrawRate = parseFloat(document.getElementById('withdrawRate').value) / 100;
+      const fersSupp = document.getElementById('fersSupp').value;
+      const pension = high3 * years * 0.011;
+      const tspMonthly = (tsp * withdrawRate) / 12;
+      const supplement = fersSupp === 'yes' ? 1300 : 0;
+      const totalMonthly = (pension / 12) + tspMonthly + vaComp + supplement;
+      document.getElementById('result').innerHTML = `
+        <h3>Estimated Monthly Retirement Income:</h3>
+        <ul>
+          <li><strong>FERS Pension:</strong> $${(pension / 12).toFixed(2)}</li>
+          <li><strong>TSP Withdrawal:</strong> $${tspMonthly.toFixed(2)}</li>
+          <li><strong>VA Disability:</strong> $${vaComp.toFixed(2)}</li>
+          <li><strong>FERS Supplement:</strong> $${supplement.toFixed(2)}</li>
+          <li><strong><em>Total Estimate:</em></strong> <strong>$${totalMonthly.toFixed(2)}</strong></li>
+        </ul>
+      `;
+    });
   });
 </script>
 
-<hr>
+<hr />
 
 <h2>📚 Resources</h2>
 <ul>
@@ -156,7 +193,7 @@
   <li><a href="https://www.va.gov/disability/">VA Disability Compensation</a></li>
 </ul>
 
-<p style="margin-top: 2rem;"><em>Disclaimer: This tool is for general planning and informational purposes only. Always consult with your agency's HR or legal team for official retirement guidance.</em></p>
+<p style="margin-top: 2rem;"><em>Disclaimer: This tool is for planning and educational purposes only. Confirm eligibility and benefits with your agency and OPM.</em></p>
 
 </body>
 </html>
