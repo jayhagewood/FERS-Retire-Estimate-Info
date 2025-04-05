@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reasonable Accommodations and Retirement Guide</title>
   <style>
     body {
@@ -108,113 +108,7 @@
 
 <h1>Guide to Reasonable Accommodations and Retirement Options for Federal Employees with Disabilities</h1>
 
-<blockquote>
-  🛠️ <strong>Welcome!</strong><br>
-  This guide is for federal employees facing medical challenges who are exploring <strong>reasonable accommodations</strong>, <strong>disability retirement</strong>, or <strong>early retirement options</strong> under FERS. Whether you're a veteran or any public servant navigating chronic health conditions, this guide is for you.
-</blockquote>
-
-<hr>
-
-<h2>Section 1: Understanding Reasonable Accommodations (RA)</h2>
-<p><strong>What is a Reasonable Accommodation?</strong><br>
-A reasonable accommodation is any change or adjustment to a job or work environment that allows a qualified individual with a disability to perform essential job functions. This is a right under the Rehabilitation Act of 1973, which applies to federal employees.</p>
-
-<ul>
-  <li>Permanent or expanded telework</li>
-  <li>Flexible work schedules</li>
-  <li>Modified job duties</li>
-  <li>Ergonomic equipment</li>
-  <li>Reassignment to a vacant position</li>
-</ul>
-
-<p><strong>Eligibility Criteria:</strong></p>
-<ul>
-  <li>Documented physical or mental impairment that substantially limits major life activities</li>
-  <li>Disability must interfere with essential job duties</li>
-</ul>
-
-<p><strong>Process:</strong></p>
-<ol>
-  <li>Initiate request with supervisor or Disability Program Manager (DPM)</li>
-  <li>Provide supporting medical documentation</li>
-  <li>Engage in interactive discussion</li>
-  <li>Agency determines accommodation</li>
-</ol>
-
-<p><strong>Tips:</strong></p>
-<ul>
-  <li>Document communications</li>
-  <li>Describe limitations, not diagnoses</li>
-</ul>
-
-<hr>
-
-<h2>Section 2: FERS Retirement Options</h2>
-
-<h3>1. Voluntary Early Retirement Authority (VERA)</h3>
-<ul>
-  <li>Age 50 with 20 years, or any age with 25 years of service</li>
-  <li>Immediate pension, no penalty</li>
-  <li>Includes FERS Annuity Supplement</li>
-</ul>
-
-<h3>2. FERS Disability Retirement</h3>
-<ul>
-  <li>Available after 18 months of service</li>
-  <li>Must be medically unable to perform job for at least a year</li>
-  <li>Agency must be unable to accommodate or reassign</li>
-  <li>Must apply for SSDI</li>
-</ul>
-
-<h3>FERS Disability Pay Structure</h3>
-<ul>
-  <li>Year 1: 60% of High-3 minus 100% of SSDI</li>
-  <li>Years 2–62: 40% of High-3 minus 60% of SSDI</li>
-  <li>At 62: Converts to regular FERS annuity</li>
-</ul>
-
-<h3>3. Disability vs. Early Retirement – Key Differences</h3>
-
-<table>
-<thead>
-<tr><th>Feature</th><th>VERA</th><th>FERS Disability</th></tr>
-</thead>
-<tbody>
-<tr><td>Age Requirement</td><td>50 w/ 20 or 25 yrs</td><td>Any age, 18+ mo service</td></tr>
-<tr><td>Immediate Retirement</td><td>Yes</td><td>Yes</td></tr>
-<tr><td>FERS Supplement</td><td>Yes</td><td>No</td></tr>
-<tr><td>SSDI Offset</td><td>No</td><td>Yes</td></tr>
-<tr><td>VA Disability Compatible</td><td>Yes</td><td>Yes (if separate)</td></tr>
-</tbody>
-</table>
-
-<hr>
-
-<h2>Section 3: Combining VA Disability with Federal Benefits</h2>
-<ul>
-  <li>VA disability + FERS annuity = OK</li>
-  <li>VA pay is tax-free</li>
-  <li>No offset unless conditions overlap</li>
-</ul>
-
-<p><strong>Conditions Supporting RA or Disability:</strong></p>
-<ul>
-  <li>IBS</li>
-  <li>Migraines</li>
-  <li>Cancer</li>
-  <li>PTSD</li>
-</ul>
-
-<hr>
-
-<h2>Section 4: Planning and Documentation Tips</h2>
-<ul>
-  <li>Keep records of episodes and leave</li>
-  <li>Use VA and doctor documentation</li>
-  <li>Track HR and supervisor communications</li>
-  <li>Utilize support groups, EEO, unions</li>
-</ul>
-
+<!-- FERS Calculator Inputs -->
 <h2>💡 Interactive FERS Retirement Calculator</h2>
 <form id="calcForm">
   <label>High-3 Average Salary ($):</label>
@@ -236,9 +130,14 @@ A reasonable accommodation is any change or adjustment to a job or work environm
 </form>
 
 <div class="result" id="result"></div>
+<canvas id="incomeChart" width="400" height="200" style="margin-top: 2rem;"></canvas>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('incomeChart').getContext('2d');
+    let incomeChart;
+
     document.getElementById('calcForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const high3 = parseFloat(document.getElementById('high3').value);
@@ -247,45 +146,83 @@ A reasonable accommodation is any change or adjustment to a job or work environm
       const tsp = parseFloat(document.getElementById('tsp').value);
       const withdrawRate = parseFloat(document.getElementById('withdrawRate').value) / 100;
       const fersSupp = document.getElementById('fersSupp').value;
+
       const pension = high3 * years * 0.011;
       const tspMonthly = (tsp * withdrawRate) / 12;
       const supplement = fersSupp === 'yes' ? 1300 : 0;
-      const totalMonthly = (pension / 12) + tspMonthly + vaComp + supplement;
+
+      const fersTotal = (pension / 12) + tspMonthly + vaComp + supplement;
+
+      // Disability Retirement Estimate
+      const fersDisabilityInitial = 0.6 * high3;
+      const fersDisabilityMonthly1 = (fersDisabilityInitial / 12);
+      const fersDisabilityMonthly2 = ((0.4 * high3) / 12);
+      const disabilityWithVA = fersDisabilityMonthly2 + vaComp + tspMonthly;
+
+      // VERA Estimate
+      const veraPension = high3 * years * 0.011;
+      const veraMonthly = (veraPension / 12) + vaComp + tspMonthly + supplement;
+
       document.getElementById('result').innerHTML = `
-        <h3>Estimated Monthly Retirement Income:</h3>
-        <ul>
-          <li><strong>FERS Pension:</strong> $${(pension / 12).toFixed(2)}</li>
-          <li><strong>TSP Withdrawal:</strong> $${tspMonthly.toFixed(2)}</li>
-          <li><strong>VA Disability:</strong> $${vaComp.toFixed(2)}</li>
-          <li><strong>FERS Supplement:</strong> $${supplement.toFixed(2)}</li>
-          <li><strong><em>Total Estimate:</em></strong> <strong>$${totalMonthly.toFixed(2)}</strong></li>
-        </ul>
+        <h3>Estimated Monthly Retirement Income Scenarios:</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Monthly Total</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Regular FERS</strong></td>
+              <td>$${fersTotal.toFixed(2)}</td>
+              <td>FERS + TSP + VA + FERS Supplement</td>
+            </tr>
+            <tr>
+              <td><strong>FERS Disability (Year 2+)</strong></td>
+              <td>$${disabilityWithVA.toFixed(2)}</td>
+              <td>40% High-3 + VA + TSP</td>
+            </tr>
+            <tr>
+              <td><strong>VERA (Early Retirement)</strong></td>
+              <td>$${veraMonthly.toFixed(2)}</td>
+              <td>Pension + VA + TSP + FERS Supplement</td>
+            </tr>
+          </tbody>
+        </table>
       `;
+
+      if (incomeChart) incomeChart.destroy();
+      incomeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Regular FERS', 'Disability Retirement', 'VERA'],
+          datasets: [{
+            label: 'Monthly Income ($)',
+            data: [fersTotal, disabilityWithVA, veraMonthly],
+            backgroundColor: ['#3498db', '#2ecc71', '#f39c12']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Retirement Income Comparison'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
     });
   });
 </script>
-
-<hr>
-
-<h2>🙋 Need Help or Want to Contribute?</h2>
-<ul>
-  <li>Submit GitHub issue or PR</li>
-  <li>Email the guide maintainer</li>
-  <li>Join future support group (Slack/Discord)</li>
-</ul>
-
-<hr>
-
-<h2>📚 Resources</h2>
-<ul>
-  <li><a href="https://www.opm.gov/retirement-services/disability-retirement/">OPM Disability Retirement</a></li>
-  <li><a href="https://www.eeoc.gov/reasonable-accommodation">EEOC RA Handbook</a></li>
-  <li><a href="https://www.va.gov/disability/">VA Compensation</a></li>
-</ul>
-
-<hr>
-
-<p><em>Disclaimer: This guide is not legal or HR advice. Confirm with OPM, SSA, VA, and agency HR before acting.</em></p>
 
 </body>
 </html>
